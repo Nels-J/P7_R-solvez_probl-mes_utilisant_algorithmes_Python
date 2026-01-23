@@ -4,10 +4,10 @@ import time
 from typing import List, Dict
 
 
-MAX_BUDGET = 500 # Maximum budget in euros for investment todo: gérer un choix utilisateur.
+MAX_BUDGET = 500 # Maximum budget in euros for investment
 
 
-def load_actions(csv_file: str) -> List[Dict]: # todo: à déplacer dans un module à part (data_tools?)
+def load_actions(csv_file: str) -> List[Dict]:
     """
     Load actions from a CSV file.
 
@@ -30,7 +30,7 @@ def load_actions(csv_file: str) -> List[Dict]: # todo: à déplacer dans un modu
     return actions
 
 
-def calculate_profit(actions: List[Dict]) -> float:  # todo: a déplacer dans un module à part (financial_tools?)
+def calculate_profit(actions: List[Dict]) -> float:
     """
     Calculate total profit after 2 years.
 
@@ -40,7 +40,7 @@ def calculate_profit(actions: List[Dict]) -> float:  # todo: a déplacer dans un
     return sum(action["cost"] * action["benefit"] for action in actions)
 
 
-def calculate_cost(actions: List[Dict]) -> float:  # todo: vers -> financial_tools?
+def calculate_cost(actions: List[Dict]) -> float:
     """
     Calculate total investment cost.
 
