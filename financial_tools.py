@@ -11,7 +11,7 @@ def calculate_profit(actions: List[Dict]) -> float:
     return sum(action["cost"] * action["benefit"] for action in actions)
 
 
-def calculate_cost(actions: List[Dict]) -> float:  # todo: vers -> financial_tools?
+def calculate_cost(actions: List[Dict]) -> float:
     """
     Calculate total investment cost.
 
