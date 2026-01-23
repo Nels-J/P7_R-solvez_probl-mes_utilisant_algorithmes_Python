@@ -1,0 +1,7 @@
+# Ignore ide files
+.idea/
+
+# Ignore project specific files
+/Actions_list.csv
+/dataset1_Python_P7.csv
+/dataset2_Python_P7.csv
