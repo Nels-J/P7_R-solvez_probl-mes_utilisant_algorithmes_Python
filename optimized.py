@@ -10,7 +10,7 @@ MAX_BUDGET = 500 # Maximum budget in euros for investment todo: gérer un choix 
 def remove_invalid_actions(actions: List[Dict]) -> List[Dict]:
     """
     Remove actions with non-positive cost or benefit.
-
+        IF cost <= 0 or benefit <= 0 then the action is invalid.
     :param actions: List of actions
     :return: Filtered list of actions
     """
@@ -19,7 +19,7 @@ def remove_invalid_actions(actions: List[Dict]) -> List[Dict]:
 
 def best_investment_dp(actions: List[Dict]) -> Dict:
     """
-    Find the best investment using a dynamic programming approach to solve the 0/1 knapsack problem.
+    Find the best investment using a Dynamic Programming approach to solve the 0/1 knapsack problem.
     :param actions: List of available actions
     :return: Best investment result dictionary
     """
@@ -30,13 +30,13 @@ def best_investment_dp(actions: List[Dict]) -> Dict:
     weights = [int(round(a["cost"] * 100)) for a in actions]
     values = [a["cost"] * a["benefit"] for a in actions]
 
-    n = len(actions)
+    numbers_of_actions = len(actions)
     dp = [0.0] * (budget_cents + 1)
     item_index = [-1] * (budget_cents + 1)  # index of last item used to reach capacity c
     prev = [-1] * (budget_cents + 1)        # previous capacity before adding that item
 
     iterations = 0
-    for i in range(n):
+    for i in range(numbers_of_actions):
         w = weights[i]
         v = values[i]
         if w > budget_cents:
@@ -51,12 +51,12 @@ def best_investment_dp(actions: List[Dict]) -> Dict:
                 prev[c] = c - w
 
     # trouver la capacité maximale atteinte
-    best_cap = max(range(budget_cents + 1), key=lambda c: dp[c])
-    best_profit = dp[best_cap]
+    best_capacity = max(range(budget_cents + 1), key=lambda c: dp[c])
+    best_profit = dp[best_capacity]
 
     # reconstruire la solution
     selected_indices = []
-    c = best_cap
+    c = best_capacity
     visited = set()
     while c > 0 and item_index[c] != -1:
         i = item_index[c]
@@ -86,12 +86,18 @@ def best_investment_dp(actions: List[Dict]) -> Dict:
         "actions": best_combination,
         "total_cost": sum(a["cost"] for a in best_combination),
         "total_profit": best_profit,
-        "tested_combinations": iterations,  # indicateur d'effort (boucles DP)
+        "tested_combinations": iterations,
     }
 
 
 if __name__ == "__main__":
-    dataset_loaded = load_actions("dataset1_Python_P7.csv")
-    actions = remove_invalid_actions(dataset_loaded)
-    optimized_investment = best_investment_dp(actions)
-    display_result(optimized_investment)
+    dataset1_loaded = load_actions("dataset1_Python_P7.csv") # Smaller dataset
+    actions1 = remove_invalid_actions(dataset1_loaded)
+    optimized_investment1 = best_investment_dp(actions1)
+    display_result(optimized_investment1)  # Smaller dataset DP algorithm execution time : 00:00:04.254
+
+    dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
+    actions2 = remove_invalid_actions(dataset2_loaded)
+    optimized_investment2 = best_investment_dp(actions2)
+    display_result(optimized_investment2)  # Larger dataset DP algorithm execution time : 00:00:02.697
+
