@@ -1,4 +1,6 @@
 # https://www.youtube.com/watch?v=qxWu-SeAqe4
+# Other solution : https://github.com/ByteQuest0/Implemention_codes/blob/main/Dynamic%20Programming/knapsack.py
+
 import time
 
 actions = [
