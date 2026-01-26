@@ -4,8 +4,8 @@ from typing import List, Dict
 from cli_display import display_result
 from data_tools import load_actions
 
-# MAX_BUDGET = 500 # Maximum budget in euros for investment
-
+MAX_BUDGET_EUROS = 500 # Maximum budget in euros for investment
+CAPACITY_CENTS = MAX_BUDGET_EUROS * 100 # Capacity changed to centimes for integer calculations
 
 def clean_actions(actions: List[Dict]) -> List[Dict]:
     """
@@ -14,14 +14,14 @@ def clean_actions(actions: List[Dict]) -> List[Dict]:
     :param actions: List of actions
     :return: Filtered list of actions
     """
-    cleaned_actions =[]
+    cleaned_actions = []
     for action in actions:
         if action["cost"] <= 0 or action["benefit"] <= 0:
             continue
         cleaned_actions.append({
                 'name': action["name"],
-                'cost': int(action["cost"] * 100),
-                'profit': action["cost"] * action["benefit"]/100,
+                'cost': int(action["cost"] * 100), # Convert cost to centimes
+                'profit': int(action["cost"] * action["benefit"]), # Calculate profit in centimes
         })
     return cleaned_actions
 
@@ -102,7 +102,10 @@ def best_investment_dp(actions, capacity ):
 if __name__ == "__main__":
     dataset1_loaded = load_actions("dataset1_Python_P7.csv") # Smaller dataset
     actions1 = clean_actions(dataset1_loaded)
-    optimized_investment1 = best_investment_dp(actions1, 50000)
+    optimized_investment1 = best_investment_dp(
+            actions1,
+            CAPACITY_CENTS
+    )
     print(optimized_investment1)
 
     # display_result(optimized_investment1)  # Smaller dataset DP algorithm execution time : 00:00:04.254
