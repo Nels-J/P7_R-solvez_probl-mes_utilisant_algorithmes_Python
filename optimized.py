@@ -18,6 +18,7 @@ def clean_actions(actions: List[Dict]) -> List[Dict]:
     for action in actions:
         if action["cost"] <= 0 or action["benefit"] <= 0:
             continue
+
         cleaned_actions.append({
                 'name': action["name"],
                 'cost': int(action["cost"] * 100), # Convert cost to centimes
@@ -32,16 +33,13 @@ def best_investment_dp(actions, capacity ):
     :return: Best investment result dictionary
     """
     start_time = time.perf_counter()
-    #
-    # # Convert to integer weights (centimes) to use DP array indices
-    # budget_cents = int(capacity * 100)
-    # weights = [int(round(a["cost"] * 100)) for a in actions]
+
     weights = [a['cost'] for a in actions]
     values = [a["profit"] for a in actions]
-    print(weights , values)
+    # print(weights , values) # debug to removed
 
     numbers_of_actions = len(actions)
-    dp = [0.0] * (capacity + 1)
+    dp = [0] * (capacity + 1)
     item_index = [-1] * (capacity + 1)  # index of last item used to reach capacity c
     prev = [-1] * (capacity + 1)        # previous capacity before adding that item
 
@@ -51,7 +49,8 @@ def best_investment_dp(actions, capacity ):
         v = values[i]
         if w > capacity:
             continue
-        # parcours inverse pour 0/1 knapsack
+
+        # 0/1 knapsack DP update (in reverse to avoid reuse of the same item)
         for c in range(capacity, w - 1, -1):
             iterations += 1
             newv = dp[c - w] + v
@@ -60,11 +59,11 @@ def best_investment_dp(actions, capacity ):
                 item_index[c] = i
                 prev[c] = c - w
 
-    # trouver la capacité maximale atteinte
+    # find the best profit and corresponding capacity
     best_capacity = max(range(capacity + 1), key=lambda c: dp[c])
     best_profit = dp[best_capacity]
 
-    # reconstruire la solution
+    # reconstruct the best combination of actions
     selected_indices = []
     c = best_capacity
     visited = set()
@@ -96,7 +95,7 @@ def best_investment_dp(actions, capacity ):
         "actions": best_combination,
         "total_cost": sum(a["cost"] for a in best_combination),
         "total_profit": best_profit,
-        "tested_combinations": iterations,
+        "dp_iterations": iterations,
     }
 
 if __name__ == "__main__":
@@ -106,22 +105,17 @@ if __name__ == "__main__":
             actions1,
             CAPACITY_CENTS
     )
-    print(optimized_investment1)
+    display_result(optimized_investment1)
+    # print(optimized_investment1) # debug to remove
 
-    # display_result(optimized_investment1)  # Smaller dataset DP algorithm execution time : 00:00:04.254
-
-    # dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
-    # actions2 = clean_actions(dataset2_loaded)
-    # optimized_investment2 = best_investment_dp(actions2, 50000)
-    # # display_result(optimized_investment2)  # Larger dataset DP algorithm execution time : 00:00:02.697
-    # print(optimized_investment2)
-
-# todo : Revoir la chaine import=>traitement=>chargement en amont:
-#  Mémo: Charger / Inspecter / Nettoyer / Convertir / Transformer / Enrichir / Optimiser / Valider / Exporter
-# Usage de Panda ?
-
-# fixme : erreur dans la sortie (probablement un calcul */ erroné
-# total profit semble ok mais pas celui de l'action.
+    dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
+    actions2 = clean_actions(dataset2_loaded)
+    optimized_investment2 = best_investment_dp(
+            actions2,
+            CAPACITY_CENTS
+    )
+    display_result(optimized_investment2)
+    # print(optimized_investment2) # debug to remove
 
 
 
