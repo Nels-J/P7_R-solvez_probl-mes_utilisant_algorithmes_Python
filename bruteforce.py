@@ -81,9 +81,9 @@ def brute_force_best_investment(actions: List[Action]) -> InvestmentResult:
     for r in range(1, initial_count + 1):
         for combo in itertools.combinations(actions, r):
             tested_combinations += 1
-            total_cost = calculate_cost(combo)
+            total_cost = calculate_cost(list(combo))
             if total_cost <= MAX_BUDGET_EUR:
-                total_profit = calculate_profit(combo)
+                total_profit = calculate_profit(list(combo))
                 if total_profit > best_profit:
                     best_profit = total_profit
                     best_combination = list(combo)
