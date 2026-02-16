@@ -1,11 +1,15 @@
 import time
+from pprint import pprint
 from typing import List, Dict
 
 from cli_display import display_result
 from data_tools import load_actions
 
-MAX_BUDGET_EUROS = 500 # Maximum budget in euros for investment
-CAPACITY_CENTS = MAX_BUDGET_EUROS * 100 # Capacity changed to centimes for integer calculations
+MAX_BUDGET_EUROS = 500  # Maximum budget in euros for investment
+CAPACITY_CENTS = (
+        MAX_BUDGET_EUROS * 100
+)  # Capacity changed to centimes for integer calculations
+
 
 def clean_actions(actions: List[Dict]) -> List[Dict]:
     """
@@ -19,101 +23,75 @@ def clean_actions(actions: List[Dict]) -> List[Dict]:
         if action["cost"] <= 0 or action["benefit"] <= 0:
             continue
 
-        cleaned_actions.append({
-                'name': action["name"],
-                'cost': int(action["cost"] * 100), # Convert cost to centimes
-                'profit': int(action["cost"] * action["benefit"]), # Calculate profit in centimes
-        })
+        cleaned_actions.append(
+                {
+                        "name"  : action["name"],
+                        "cost"  : int(action["cost"] * 100),  # Convert cost to centimes
+                        "profit": int(
+                                action["cost"] * action["benefit"],
+                        ),  # Calculate profit in centimes
+                },
+        )
     return cleaned_actions
 
-def best_investment_dp(actions, capacity ):
+
+def best_investment_dp(items, budget) -> (int, List[dict]):
     """
     Find the best investment using a Dynamic Programming approach to solve the 0/1 knapsack problem.
     :param actions: List of available actions
-    :return: Best investment result dictionary
+    :return:
     """
-    start_time = time.perf_counter()
+    n = len(items)
+    if budget < 0:
+        raise ValueError("budget must be > 0")
 
-    weights = [a['cost'] for a in actions]
-    values = [a['profit'] for a in actions]
+    # dp[i][b] = max profit using first i items within budget b
+    dp = [[0] * (budget + 1) for _ in range(n + 1)]
+    take = [[False] * (budget + 1) for _ in range(n + 1)]  # reconstruction
 
-    numbers_of_actions = len(actions)
-    dp = [0] * (capacity + 1)
-    item_index = [-1] * (capacity + 1)  # index of last item used to reach capacity c
-    prev = [-1] * (capacity + 1)        # previous capacity before adding that item
+    for i in range(1, n + 1):
+        it = items[i - 1]
+        for b in range(budget + 1):  # for each budget from 0 to max budget
+            # option 1: don't take
+            best = dp[i - 1][b]
+            chosen = False
 
-    iterations = 0
-    for i in range(numbers_of_actions):
-        w = weights[i]
-        v = values[i]
-        if w > capacity:
-            continue
+            # option 2: take (if fits)
+            if it["cost"] <= b:
+                cand = dp[i - 1][b - it["cost"]] + it["profit"]
+                if cand > best:
+                    best = cand
+                    chosen = True
 
-        # 0/1 knapsack DP update (in reverse to avoid reuse of the same item)
-        for c in range(capacity, w - 1, -1):
-            iterations += 1
-            newv = dp[c - w] + v
-            if newv > dp[c]:
-                dp[c] = newv
-                item_index[c] = i
-                prev[c] = c - w
+            dp[i][b] = best
+            take[i][b] = chosen
 
-    # find the best profit and corresponding capacity
-    best_capacity = max(range(capacity + 1), key=lambda c: dp[c])
-    best_profit = dp[best_capacity]
+    # reconstruct chosen items
+    chosen_items: List[dict] = []
+    b = budget
+    for i in range(n, 0, -1):
+        if take[i][b]:
+            it = items[i - 1]
+            chosen_items.append(it)
+            b -= it["cost"]
 
-    # reconstruct the best combination of actions
-    selected_indices = []
-    c = best_capacity
-    visited = set()
-    while c > 0 and item_index[c] != -1:
-        i = item_index[c]
-        if i in visited:
-            break  # sécurité
-        selected_indices.append(i)
-        visited.add(i)
-        c = prev[c]
+    chosen_items.reverse()
+    return (dp[n][budget], chosen_items)
 
-    selected_indices.reverse()
-    best_combination = [actions[i] for i in selected_indices]
-
-    end_time = time.perf_counter()
-    elapsed = end_time - start_time
-    hours, remainder = divmod(elapsed, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    milliseconds = (seconds - int(seconds)) * 1000
-    formatted_time = (
-        f"{int(hours):02d}:"
-        f"{int(minutes):02d}:"
-        f"{int(seconds):02d}."
-        f"{int(milliseconds):03d}"
-    )
-    print(f"⏱ DP algorithm execution time : {formatted_time}")
-
-    return {
-        "actions": best_combination,
-        "total_cost": sum(a["cost"] for a in best_combination),
-        "total_profit": best_profit,
-        "dp_iterations": iterations,
-    }
 
 if __name__ == "__main__":
-    dataset1_loaded = load_actions("dataset1_Python_P7.csv") # Smaller dataset
+    dataset1_loaded = load_actions("dataset1_Python_P7.csv")  # Smaller dataset
     actions1 = clean_actions(dataset1_loaded)
-    optimized_investment1 = best_investment_dp(
-            actions1,
-            CAPACITY_CENTS
-    )
-    display_result(optimized_investment1)
+    optimized_investment1 = best_investment_dp(actions1, CAPACITY_CENTS)
+
+    print(type(optimized_investment1))
+    pprint(optimized_investment1)
+    print(f"cost: {sum(item['cost'] for item in optimized_investment1[1])} cents")
+    print(f"profit: {optimized_investment1[0]} cents")
 
     dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
     actions2 = clean_actions(dataset2_loaded)
-    optimized_investment2 = best_investment_dp(
-            actions2,
-            CAPACITY_CENTS
-    )
-    display_result(optimized_investment2)
-
-
-
-
+    optimized_investment2 = best_investment_dp(actions2, CAPACITY_CENTS)
+    pprint(optimized_investment2)
+    pprint(f"cost: {sum(item['cost'] for item in optimized_investment2[1])} cents")
+    pprint(f"profit: {optimized_investment2[0]} cents")
