@@ -1,6 +1,7 @@
-from pprint import pprint
-from typing import List, Dict
+import time
+from typing import List, Dict, Tuple
 
+from toolbox.cli_display import display_optimized_result
 from toolbox.data_tools import load_actions
 
 MAX_BUDGET_EUROS = 500  # Maximum budget in euros for investment
@@ -21,24 +22,31 @@ def clean_actions(actions: List[Dict]) -> List[Dict]:
         if action["cost"] <= 0 or action["benefit"] <= 0:
             continue
 
+        cost_cents = int(round(action["cost"] * 100))  # Convert cost to centimes
+        # 'benefit' in the CSV is a percentage (e.g. 12.5 for 12.5%),
+        # so profit in cents is cost_cents * (benefit / 100).
+        profit_cents = int(round(cost_cents * (action["benefit"] / 100.0)))
+
         cleaned_actions.append(
                 {
                         "name"  : action["name"],
-                        "cost"  : int(action["cost"] * 100),  # Convert cost to centimes
-                        "profit": int(
-                                action["cost"] * action["benefit"],
-                        ),  # Calculate profit in centimes
+                        "cost"  : cost_cents,
+                        "profit": profit_cents,
                 },
         )
     return cleaned_actions
 
 
-def best_investment_dp(items, budget) -> (int, List[dict]):
+def best_investment_dp(items, budget) -> Tuple[int, List[dict], float]:
     """
     Find the best investment using a Dynamic Programming approach to solve the 0/1 knapsack problem.
-    :param actions: List of available actions
-    :return:
+    Returns a tuple: (best_profit_cents, chosen_items, elapsed_seconds)
+    :param items: List of available actions (with 'cost' and 'profit' in cents)
+    :param budget: Budget in cents
+    :return: (max profit in cents, list of chosen items, elapsed seconds)
     """
+    start_time = time.perf_counter()
+
     n = len(items)
     if budget < 0:
         raise ValueError("budget must be > 0")
@@ -74,22 +82,21 @@ def best_investment_dp(items, budget) -> (int, List[dict]):
             b -= it["cost"]
 
     chosen_items.reverse()
-    return (dp[n][budget], chosen_items)
+
+    end_time = time.perf_counter()
+    elapsed = end_time - start_time
+
+    return dp[n][budget], chosen_items, elapsed
 
 
 if __name__ == "__main__":
     dataset1_loaded = load_actions("dataset1_Python_P7.csv")  # Smaller dataset
     actions1 = clean_actions(dataset1_loaded)
-    optimized_investment1 = best_investment_dp(actions1, CAPACITY_CENTS)
-
-    print(type(optimized_investment1))
-    pprint(optimized_investment1)
-    print(f"cost: {sum(item['cost'] for item in optimized_investment1[1])} cents")
-    print(f"profit: {optimized_investment1[0]} cents")
+    best_profit_cents, chosen_items, elapsed = best_investment_dp(actions1, CAPACITY_CENTS)
+    display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1))
+    print("#" * 80)
 
     dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
     actions2 = clean_actions(dataset2_loaded)
-    optimized_investment2 = best_investment_dp(actions2, CAPACITY_CENTS)
-    pprint(optimized_investment2)
-    pprint(f"cost: {sum(item['cost'] for item in optimized_investment2[1])} cents")
-    pprint(f"profit: {optimized_investment2[0]} cents")
+    best_profit_cents, chosen_items, elapsed = best_investment_dp(actions2, CAPACITY_CENTS)
+    display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions2))
