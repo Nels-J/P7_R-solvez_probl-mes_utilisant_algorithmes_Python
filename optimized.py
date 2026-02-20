@@ -37,13 +37,13 @@ def clean_actions(actions: List[Dict]) -> List[Dict]:
     return cleaned_actions
 
 
-def best_investment_dp(items, budget) -> Tuple[int, List[dict], float]:
+def best_investment_dp(items, budget) -> Tuple[int, List[dict], float, int]:
     """
     Find the best investment using a Dynamic Programming approach to solve the 0/1 knapsack problem.
-    Returns a tuple: (best_profit_cents, chosen_items, elapsed_seconds)
+    Returns a tuple: (best_profit_cents, chosen_items, elapsed_seconds, dp_iterations)
     :param items: List of available actions (with 'cost' and 'profit' in cents)
     :param budget: Budget in cents
-    :return: (max profit in cents, list of chosen items, elapsed seconds)
+    :return: (max profit in cents, list of chosen items, elapsed seconds, dp iterations)
     """
     start_time = time.perf_counter()
 
@@ -55,9 +55,13 @@ def best_investment_dp(items, budget) -> Tuple[int, List[dict], float]:
     dp = [[0] * (budget + 1) for _ in range(n + 1)]
     take = [[False] * (budget + 1) for _ in range(n + 1)]  # reconstruction
 
+    dp_iterations = 0
     for i in range(1, n + 1):
         it = items[i - 1]
         for b in range(budget + 1):  # for each budget from 0 to max budget
+            # count this decision (state evaluation)
+            dp_iterations += 1
+
             # option 1: don't take
             best = dp[i - 1][b]
             chosen = False
@@ -86,17 +90,17 @@ def best_investment_dp(items, budget) -> Tuple[int, List[dict], float]:
     end_time = time.perf_counter()
     elapsed = end_time - start_time
 
-    return dp[n][budget], chosen_items, elapsed
+    return dp[n][budget], chosen_items, elapsed, dp_iterations
 
 
 if __name__ == "__main__":
     # dataset1_loaded = load_actions("dataset1_Python_P7.csv")  # Smaller dataset
     # actions1 = clean_actions(dataset1_loaded)
-    # best_profit_cents, chosen_items, elapsed = best_investment_dp(actions1, CAPACITY_CENTS)
-    # display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1))
+    # best_profit_cents, chosen_items, elapsed, dp_iterations = best_investment_dp(actions1, CAPACITY_CENTS)
+    # display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1), dp_iterations)
     # print("#" * 80)
     #
     dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
     actions2 = clean_actions(dataset2_loaded)
-    best_profit_cents, chosen_items, elapsed = best_investment_dp(actions2, CAPACITY_CENTS)
-    display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions2))
+    best_profit_cents, chosen_items, elapsed, dp_iterations = best_investment_dp(actions2, CAPACITY_CENTS)
+    display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions2), dp_iterations)
