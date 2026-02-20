@@ -116,7 +116,7 @@ def display_result(result: InvestmentResult) -> None:
             f"{int(milliseconds):03d}"
     )
     # Format and print results
-    print("Best investment found")
+    print("Best investment found - Brute Force Approach")
     print(f"Initial actions in panel: {result.initial_actions_count}")
     print(f"Tested combinations: {result.tested_combinations}")
     print(f"Execution time: {formatted_time}")
