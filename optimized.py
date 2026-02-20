@@ -94,13 +94,14 @@ def best_investment_dp(items, budget) -> Tuple[int, List[dict], float, int]:
 
 
 if __name__ == "__main__":
-    # dataset1_loaded = load_actions("dataset1_Python_P7.csv")  # Smaller dataset
-    # actions1 = clean_actions(dataset1_loaded)
-    # best_profit_cents, chosen_items, elapsed, dp_iterations = best_investment_dp(actions1, CAPACITY_CENTS)
-    # display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1), dp_iterations)
-    # print("#" * 80)
-    #
-    dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
+    dataset1_loaded = load_actions("dataset1_Python_P7.csv")
+    actions1 = clean_actions(dataset1_loaded)
+    best_profit_cents, chosen_items, elapsed, dp_iterations = best_investment_dp(actions1, CAPACITY_CENTS)
+    display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1), dp_iterations)
+
+    print("\n" + "#" * 80 + "\n" )
+
+    dataset2_loaded = load_actions("dataset2_Python_P7.csv")
     actions2 = clean_actions(dataset2_loaded)
     best_profit_cents, chosen_items, elapsed, dp_iterations = best_investment_dp(actions2, CAPACITY_CENTS)
     display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions2), dp_iterations)
