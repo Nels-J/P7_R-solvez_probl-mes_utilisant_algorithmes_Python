@@ -64,9 +64,9 @@ def best_investment_dp(items, budget) -> Tuple[int, List[dict], float]:
 
             # option 2: take (if fits)
             if it["cost"] <= b:
-                cand = dp[i - 1][b - it["cost"]] + it["profit"]
-                if cand > best:
-                    best = cand
+                candidate = dp[i - 1][b - it["cost"]] + it["profit"]
+                if candidate > best:
+                    best = candidate
                     chosen = True
 
             dp[i][b] = best
@@ -90,12 +90,12 @@ def best_investment_dp(items, budget) -> Tuple[int, List[dict], float]:
 
 
 if __name__ == "__main__":
-    dataset1_loaded = load_actions("dataset1_Python_P7.csv")  # Smaller dataset
-    actions1 = clean_actions(dataset1_loaded)
-    best_profit_cents, chosen_items, elapsed = best_investment_dp(actions1, CAPACITY_CENTS)
-    display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1))
-    print("#" * 80)
-
+    # dataset1_loaded = load_actions("dataset1_Python_P7.csv")  # Smaller dataset
+    # actions1 = clean_actions(dataset1_loaded)
+    # best_profit_cents, chosen_items, elapsed = best_investment_dp(actions1, CAPACITY_CENTS)
+    # display_optimized_result(best_profit_cents, chosen_items, elapsed, len(actions1))
+    # print("#" * 80)
+    #
     dataset2_loaded = load_actions("dataset2_Python_P7.csv")  # Larger dataset
     actions2 = clean_actions(dataset2_loaded)
     best_profit_cents, chosen_items, elapsed = best_investment_dp(actions2, CAPACITY_CENTS)
